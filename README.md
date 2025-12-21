@@ -26,17 +26,6 @@ It's especially helpful for quick-look analysis, student projects, or preparing 
 - Outputs: interactive plots, CSV mean flux, NetCDF full spectrograms
 - Configurable number of 3D snapshots
 
-## Requirements
-
-Python 3.8+ and the following packages (install via `pip install -r requirements.txt`):
-
-- numpy
-- pandas
-- xarray
-- matplotlib
-- pytplot (>=2.0)
-- pyspedas (for easy data download — optional if you already have local CDF files)
-
 ## Data Sources
 
 MAVEN calibrated CDF files are publicly available from NASA's Planetary Data System (PDS) Planetary Plasma Interactions (PPI) Node:

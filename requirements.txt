@@ -1,0 +1,8 @@
+Python 3.8+ and the following packages:
+
+- numpy
+- pandas
+- xarray
+- matplotlib
+- pytplot (>=2.0)
+- pyspedas 

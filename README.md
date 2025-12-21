@@ -1,4 +1,4 @@
-# MAVEN 3D Particle Distribution Visualizer
+# MAVEN 3D Particle Distribution Visualiser
 
 A Python tool to load calibrated MAVEN particle data (SWEA, STATIC, SEP), generate omnidirectional spectrograms, and create intuitive **3D angular distribution plots** of differential energy flux in instrument coordinates.
 
@@ -12,7 +12,7 @@ Understanding 3D particle velocity distributions is key to studying plasma proce
 
 Standard 2D spectrograms (energy vs. time) lose angular information. This script:
 - Sums over angles for clean **omnidirectional spectrograms**
-- Projects angular flux onto a 3D spherical surface (radius/color = flux intensity) for selected time snapshots
+- Projects angular flux onto a 3D spherical surface (radius/colour = flux intensity) for selected time snapshots
 - Provides clear labeling based on official MAVEN instrument documentation
 - Saves processed data as CSV (quick inspection) and NetCDF (standard scientific format)
 

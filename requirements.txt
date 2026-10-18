@@ -3,6 +3,9 @@
 # different package: its latest release is 1.7.x, so `pytplot>=2.0` cannot
 # be installed. This script does not import pyspedas.
 pytplot-mpl-temp>=2.0
+# pytplot-mpl-temp 2.2.79 imports pytz while loading and does not declare it.
+# pandas 3 no longer installs pytz for us, so a fresh install cannot import pytplot.
+pytz
 numpy
 pandas
 xarray

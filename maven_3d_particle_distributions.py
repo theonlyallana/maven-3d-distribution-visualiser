@@ -28,7 +28,7 @@ num_3d_snapshots = 5
 # energy_desc is unused by the plot path; the reduced spectrogram y axis is the bin index.
 instrument_configs = {
     'swea': {
-        'description': "SWEA svy3d: 3D electron distribution. Dimensions: time x elevation (-60° to +60° in 6 bins) x azimuth (0° to 360° in 16 bins) x energy (64 bins, ~3-4600 eV). Units for flux: eV/cm²-s-sr-eV.",
+        'description': "SWEA survey 3D collection svy_3d. Assumed layout, not read from the CDF: time x elevation (-60° to +60° in 6 bins) x azimuth (0° to 360° in 16 bins) x energy (64 bins, ~3-4600 eV). Hardcoded flux unit: eV/cm²-s-sr-eV.",
         'theta_range': (-60, 60),  # elevation/deflection
         'phi_range': (0, 360),  # azimuth/anode
         'energy_desc': "Energy bins (eV)",
@@ -46,7 +46,7 @@ instrument_configs = {
         'angle_label2': "Anode (azimuth, degrees)"
     },
     'sep': {
-        'description': "SEP cal-svy-full: Calibrated energetic particle spectra. Dimensions: time x look directions/sensors (6, e.g., F/R/O for ion/electron) x bins (16?) x energy (64 bins, ions ~25 keV-6 MeV, electrons ~25-500 keV). Units for flux: #/cm²-s-sr-keV.",
+        'description': "SEP cal-svy-full. The PDS bundle maven.sep.calibrated describes 4 look directions (2 per sensor), not a theta/phi grid. Unchecked notes: bins (16?) and energy (64 bins, ions ~25 keV-6 MeV, electrons ~25-500 keV). Hardcoded flux unit: #/cm²-s-sr-keV.",
         'theta_range': (0, 180),  # Approximate for look directions
         'phi_range': (0, 360),
         'energy_desc': "Energy bins (keV)",
@@ -84,11 +84,16 @@ def process_instrument(name, path):
     shape = y.shape
     print(f"Data shape: {shape}")
     
-    # Colour-scale text is the hardcoded flux_label, not the CDF UNITS attribute.
-    # Do not call the y axis energy: this routine never reads energy coordinates,
-    # and the SWEA note above says axis 1 is elevation.
-    options(flux_var, 'ztitle', config.get('flux_label', 'Flux'))
-    tplot(flux_var)
+    # pytplot-mpl-temp's matplotlib plotter raises ValueError when y is more
+    # than 2D ("x and y can be no greater than 2D"). Calling it here used to
+    # abort the script before the sum, the files, or the spherical surface.
+    if y.ndim > 2:
+        print(
+            "Not calling tplot on this variable: y has more than 2 dimensions "
+            f"(shape {shape})."
+        )
+    else:
+        tplot(flux_var)
     
     if len(shape) >= 4:  # Multi-dim data
         if name in ('static', 'sep'):

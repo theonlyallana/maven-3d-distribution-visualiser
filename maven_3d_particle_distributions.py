@@ -103,22 +103,22 @@ def process_instrument(name, path):
                 "plot still treat axis 1 and axis 2 as angles and the last axis as energy."
             )
         # Unweighted sum of axes 1 and 2. Not a solid-angle integral.
-        omni_y = np.nansum(y, axis=(1, 2))
-        omni_var = f'{name}_omni_flux'
-        store_data(omni_var, data={'x': data.times, 'y': omni_y})
-        options(omni_var, 'ytitle', 'Energy bin index')
-        options(omni_var, 'ztitle', config.get('flux_label', 'Flux'))
-        tplot(omni_var)
+        summed_y = np.nansum(y, axis=(1, 2))
+        summed_var = f'{name}_summed'
+        store_data(summed_var, data={'x': data.times, 'y': summed_y})
+        options(summed_var, 'ytitle', 'Energy bin index')
+        options(summed_var, 'ztitle', config.get('flux_label', 'Flux'))
+        tplot(summed_var)
         print(
             "Plotted an unweighted sum over axes 1 and 2. "
             "This is not a solid-angle-weighted omnidirectional flux, "
             "and the y axis is the bin index rather than energy."
         )
         
-        # Save omni
-        df = pd.DataFrame(omni_y, index=times, columns=[f'Bin_{i}' for i in range(omni_y.shape[1])])
-        df.mean(axis=1).to_csv(os.path.join(output_dir, f'{name}_omni_mean_flux.csv'))
-        xr.Dataset.from_dataframe(df).to_netcdf(os.path.join(output_dir, f'{name}_omni_spectrogram.nc'))
+        # Save the unweighted sum and its mean across bins.
+        df = pd.DataFrame(summed_y, index=times, columns=[f'Bin_{i}' for i in range(summed_y.shape[1])])
+        df.mean(axis=1).to_csv(os.path.join(output_dir, f'{name}_summed_mean.csv'))
+        xr.Dataset.from_dataframe(df).to_netcdf(os.path.join(output_dir, f'{name}_summed.nc'))
         
         # 3D snapshots
         n_time = shape[0]

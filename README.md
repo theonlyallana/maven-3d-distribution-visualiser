@@ -25,8 +25,8 @@ For each instrument:
 5. If the rank is at least 4, treat axis 1 and axis 2 as angles and the last axis as energy:
    - Replace the array with an unweighted `numpy.nansum` over axes 1 and 2. This is not a solid-angle-weighted omnidirectional flux.
    - Show that sum with `tplot`. The script sets the y-axis title to `Energy bin index` and does not set the tplot `spec` option, so `pytplot-mpl-temp` 2.2.79 draws one line per bin rather than a colour spectrogram. `ztitle` is set to the hardcoded `flux_label`, which that line plot does not display. Energy coordinates are not read from the CDF.
-   - Write `processed_data_3d_improved/{instrument}_omni_mean_flux.csv`: the timestamp as the index and one numeric column, the mean of the summed array across bins. Times are `pandas.to_datetime(..., unit='s')` applied to the unix seconds returned by `get_data`.
-   - Write `processed_data_3d_improved/{instrument}_omni_spectrogram.nc`: the summed array as variables `Bin_0`, `Bin_1`, … on a datetime coordinate named `index`. This is not the original distribution.
+   - Write `processed_data_3d_improved/{instrument}_summed_mean.csv`: the timestamp as the index and one numeric column, the mean of the summed array across bins. Times are `pandas.to_datetime(..., unit='s')` applied to the unix seconds returned by `get_data`.
+   - Write `processed_data_3d_improved/{instrument}_summed.nc`: the summed array as variables `Bin_0`, `Bin_1`, … on a datetime coordinate named `index`. This is not the original distribution. The tplot variable for the same array is `{instrument}_summed`.
    - Draw `num_3d_snapshots` surfaces (the constant is `5` unless you edit it). Indices are `linspace` from the first to the last time, so they repeat when there are fewer times than snapshots. Radius and colour are the mean along the last axis. The colour bar uses the hardcoded `flux_label`, not the CDF `UNITS` attribute. Elevation and azimuth are evenly spaced across the hardcoded `theta_range` and `phi_range`, not an angle table from the CDF. Each figure is shown with `plt.show()` and is not saved.
 
 The SWEA note in the script describes time × elevation × azimuth × energy, which matches that axis assumption. The STATIC and SEP notes describe different orders (mass/energy/angle, and look direction/bins/energy). The script still uses the same sum and the same sphere for those files, and it prints a warning when it does.
@@ -70,4 +70,4 @@ The script comment for SWEA names the PDS collection `svy_3d` (the old README sp
 
 ## Licence
 
-This repository does not include a licence file.
+[MIT](LICENSE). Copyright (c) 2026 Andrew Allan.

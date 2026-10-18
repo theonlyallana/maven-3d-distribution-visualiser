@@ -205,3 +205,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Directory created by maven_3d_particle_distributions.py
+processed_data_3d_improved/

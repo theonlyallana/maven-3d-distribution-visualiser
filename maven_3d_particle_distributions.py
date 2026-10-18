@@ -8,7 +8,6 @@ import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.animation import FuncAnimation
 
 # --- CONFIGURATION ---
 base_dir = r''
@@ -25,7 +24,8 @@ os.makedirs(output_dir, exist_ok=True)
 # Number of 3D snapshots to generate (evenly spaced over time)
 num_3d_snapshots = 5
 
-# Instrument-specific configurations for better labeling (based on MAVEN documentation)
+# Hardcoded notes, labels, and angle ranges. They are not read from the CDF.
+# energy_desc is unused by the plot path; the reduced spectrogram y axis is the bin index.
 instrument_configs = {
     'swea': {
         'description': "SWEA svy3d: 3D electron distribution. Dimensions: time x elevation (-60° to +60° in 6 bins) x azimuth (0° to 360° in 16 bins) x energy (64 bins, ~3-4600 eV). Units for flux: eV/cm²-s-sr-eV.",
@@ -84,20 +84,31 @@ def process_instrument(name, path):
     shape = y.shape
     print(f"Data shape: {shape}")
     
-    # Add better labels to raw plot
-    options(flux_var, 'ytitle', config.get('energy_desc', 'Energy'))
+    # Colour-scale text is the hardcoded flux_label, not the CDF UNITS attribute.
+    # Do not call the y axis energy: this routine never reads energy coordinates,
+    # and the SWEA note above says axis 1 is elevation.
     options(flux_var, 'ztitle', config.get('flux_label', 'Flux'))
     tplot(flux_var)
     
     if len(shape) >= 4:  # Multi-dim data
-        # Create omni spectrogram
-        omni_y = np.nansum(y, axis=(1, 2))  # Sum angles
+        if name in ('static', 'sep'):
+            print(
+                "Warning: the description for this instrument lists a dimension "
+                "order other than angle, angle, energy. The sum and the spherical "
+                "plot still treat axis 1 and axis 2 as angles and the last axis as energy."
+            )
+        # Unweighted sum of axes 1 and 2. Not a solid-angle integral.
+        omni_y = np.nansum(y, axis=(1, 2))
         omni_var = f'{name}_omni_flux'
         store_data(omni_var, data={'x': data.times, 'y': omni_y})
-        options(omni_var, 'ytitle', config.get('energy_desc', 'Energy [eV]'))
+        options(omni_var, 'ytitle', 'Energy bin index')
         options(omni_var, 'ztitle', config.get('flux_label', 'Flux'))
         tplot(omni_var)
-        print(f"Omnidirectional spectrogram plotted (summed over angles).")
+        print(
+            "Plotted an unweighted sum over axes 1 and 2. "
+            "This is not a solid-angle-weighted omnidirectional flux, "
+            "and the y axis is the bin index rather than energy."
+        )
         
         # Save omni
         df = pd.DataFrame(omni_y, index=times, columns=[f'Bin_{i}' for i in range(omni_y.shape[1])])
@@ -113,6 +124,10 @@ def process_instrument(name, path):
         
         theta_vals = np.linspace(config['theta_range'][0], config['theta_range'][1], n_theta)
         phi_vals = np.linspace(config['phi_range'][0], config['phi_range'][1], n_phi, endpoint=False)
+        print(
+            "Angle axes are evenly spaced between the hardcoded ranges in "
+            "instrument_configs, not an angle table read from the CDF."
+        )
         
         Theta, Phi = np.meshgrid(theta_vals, phi_vals, indexing='ij')
         
@@ -132,11 +147,17 @@ def process_instrument(name, path):
             surf = ax.plot_surface(X, Y, Z, cmap='viridis', linewidth=0)
             fig.colorbar(surf, label=config.get('flux_label', 'Flux'))
             ax.set_title(f'{name.upper()} 3D Angular Distribution\n{times[ti]}')
-            ax.set_xlabel(f"{config.get('angle_label2', 'Azimuth')} direction")
-            ax.set_ylabel(f"{config.get('angle_label2', 'Azimuth')} direction")
-            ax.set_zlabel(f"{config.get('angle_label1', 'Elevation')} direction")
+            azim = config.get('angle_label2', 'Azimuth')
+            elev = config.get('angle_label1', 'Elevation')
+            ax.set_xlabel(f"X ({azim} cosine projection)")
+            ax.set_ylabel(f"Y ({azim} sine projection)")
+            ax.set_zlabel(f"Z ({elev})")
             plt.show()
-            print("What this 3D plot shows: Flux distribution in instrument angular coordinates. Radius/color = flux intensity; axes represent projected directions (e.g., towards Sun or planet).")
+            print(
+                "Spherical surface in the hardcoded elevation/azimuth ranges. "
+                "Radius and colour are the mean along the last axis. "
+                "The axes are that projection, not directions toward the Sun or Mars."
+            )
 
 process_instrument('swea', instrument_paths['swea'])
 process_instrument('static', instrument_paths['static'])

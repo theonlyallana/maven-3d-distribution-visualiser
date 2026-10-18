@@ -1,8 +1,9 @@
-Python 3.8+ and the following packages:
-
-- numpy
-- pandas
-- xarray
-- matplotlib
-- pytplot (>=2.0)
-- pyspedas 
+# The script does `import pytplot`. That module, at version 2 and later, is
+# published on PyPI as pytplot-mpl-temp. The project named pytplot is a
+# different package: its latest release is 1.7.x, so `pytplot>=2.0` cannot
+# be installed. This script does not import pyspedas.
+pytplot-mpl-temp>=2.0
+numpy
+pandas
+xarray
+matplotlib
